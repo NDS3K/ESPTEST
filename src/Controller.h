@@ -19,11 +19,14 @@ void setupPS2controller()
         Serial.println(error);
     }
 }
+
 void setPower(int pin1,int pin2,int x)
 {
     pwm.setPWM(pin1,0,x);
     pwm.setPWM(pin2,0,0);
 }
+
+//Base
 void move_forward(int x)
 {
     setPower(pin1_dc1,pin2_dc1,x);
@@ -49,6 +52,8 @@ void stop()
     setPower(pin1_dc1,pin2_dc1,0);
     setPower(pin2_dc4,pin1_dc4,0);
 }
+
+//Intake
 void intake_run(int x)
 {
     setPower(pin1_dc3,pin2_dc3,x);
@@ -57,12 +62,29 @@ void intake_stop()
 {
     setPower(pin1_dc3,pin2_dc3,0);
 }
-void servo()
+void intake_reverse(int x)
 {
-
+    setPower(pin2_dc3,pin1_dc3,x);
 }
-void controller()
+
+//Climber
+void climber_forward(int x)
 {
+    setPower(pin1_dc2,pin2_dc2,x);
+}
+void climber_reverse(int x) 
+{
+    setPower(pin2_dc2,pin1_dc2,x);
+}
+void climber_stop()
+{
+    setPower(pin1_dc2,pin2_dc2,0);
+}
+
+//Control
+void controller()
+{   
+    //Joystick Setting Up
     int ly = ps2x.Analog(PSS_LY);
     int rx = ps2x.Analog(PSS_RX); 
     int ly_raw = y - ly;
@@ -72,14 +94,7 @@ void controller()
     int ly_po = map(ly_val,0,128,0,4095);
     int rx_po = map(rx_val,0,128,0,4095);
 
-    Serial.println(ly_val);
-    Serial.println(ly);
-
-    pwm.setPWM(pin1_dc1,0,ly_po);
-    pwm.setPWM(pin2_dc1,0,0);
-
-    pwm.setPWM(pin1_dc2,0,0);
-    pwm.setPWM(pin2_dc2,0,ly_po);
+    //Base Control
     if(ly_raw > 0)
     {
         move_forward(ly_po);
@@ -101,9 +116,32 @@ void controller()
         stop();
     }
 
-    intake_run(4095);
+    //Intake Control
     if(ps2x.Button(PSB_L1))
     {
         intake_stop();
-    } 
+    }
+    else if (ps2x.Button(PSB_TRIANGLE))
+    {
+        intake_reverse(4095);
+    }
+    else
+    {
+        intake_run(4095); 
+    }
+
+    //Climber Control
+    if(ps2x.Button(PSB_PAD_UP))
+    {
+        climber_forward(3000);
+    }
+    else if(ps2x.Button(PSB_PAD_DOWN))
+    {
+        climber_reverse(3000);
+    }
+    else
+    {
+        climber_stop();
+    }
+
 }
