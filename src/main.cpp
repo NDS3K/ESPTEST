@@ -248,9 +248,3 @@ void setup(void)
 //  motorSlider a(18, 19, "acnv");
 /* ESPUI.begin("ESPUI Control");
 }
-
-void loop(void)
-{
-  dnsServer.processNextRequest();
-
-}*/
